@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalStorage", "LocalStorage\LocalStorage.csproj", "{76FEDA88-68BF-40D8-81F0-77AEB6E0F6AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalStorage.Test", "LocalStorage.Test\LocalStorage.Test.csproj", "{4A6A94DF-8543-4195-B723-815A823D3CEC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{76FEDA88-68BF-40D8-81F0-77AEB6E0F6AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76FEDA88-68BF-40D8-81F0-77AEB6E0F6AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76FEDA88-68BF-40D8-81F0-77AEB6E0F6AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76FEDA88-68BF-40D8-81F0-77AEB6E0F6AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A6A94DF-8543-4195-B723-815A823D3CEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A6A94DF-8543-4195-B723-815A823D3CEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A6A94DF-8543-4195-B723-815A823D3CEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A6A94DF-8543-4195-B723-815A823D3CEC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
