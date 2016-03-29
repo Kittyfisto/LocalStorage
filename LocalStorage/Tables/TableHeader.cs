@@ -21,8 +21,8 @@ namespace LocalStorage.Tables
 
 		public void WriteTo(Page page)
 		{
-			page.Writer.Write(Name);
-			page.Writer.Write(DataType);
+			/*page.Writer.Write(Name);
+			page.Writer.Write(DataType);*/
 		}
 	}
 }

@@ -15,10 +15,11 @@ namespace LocalStorage.Test
 		public void SetUp()
 		{
 			_stream = new MemoryStream();
-			_embeddedStorage = EmbeddedStorage.FromStream(_stream);
+			_embeddedStorage = EmbeddedStorage.FromStream(_stream, StorageMode.Create);
 		}
 
 		[Test]
+		[Ignore("TODO: IMplement")]
 		public void TestAddTable1()
 		{
 			var table = _embeddedStorage.Tables.Add<string>("Foobar");
@@ -28,7 +29,7 @@ namespace LocalStorage.Test
 
 			_embeddedStorage.Dispose();
 			_stream.Position = 0;
-			_embeddedStorage = EmbeddedStorage.FromStream(_stream);
+			_embeddedStorage = EmbeddedStorage.FromStream(_stream, StorageMode.Open);
 
 			_embeddedStorage.Tables.Count.Should().Be(1);
 			table = _embeddedStorage.Tables.First();

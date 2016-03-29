@@ -12,11 +12,11 @@ namespace LocalStorage.Paging
 		private readonly byte[] _data;
 		private readonly PageDescriptor _descriptor;
 		private readonly Task _initTask;
-		private readonly BinaryWriter _writer;
 
 		private bool _isDirty;
 		private bool _isDisposed;
 		private int _position;
+		private PageCollection _pages;
 
 		/// <summary>
 		/// </summary>
@@ -28,6 +28,7 @@ namespace LocalStorage.Paging
 			Pages = pages;
 			_descriptor = descriptor;
 			_data = new byte[descriptor.DataSize];
+			_pages = pages;
 
 			if (zeroOut)
 			{
@@ -41,7 +42,6 @@ namespace LocalStorage.Paging
 			if (pages.CanWrite)
 			{
 				_canWrite = true;
-				_writer = new BinaryWriter(this);
 			}
 		}
 
@@ -56,11 +56,6 @@ namespace LocalStorage.Paging
 		public PageDescriptor Descriptor
 		{
 			get { return _descriptor; }
-		}
-
-		public BinaryWriter Writer
-		{
-			get { return _writer; }
 		}
 
 		public override bool CanRead
@@ -113,8 +108,19 @@ namespace LocalStorage.Paging
 
 		protected override void Dispose(bool disposing)
 		{
-			base.Dispose(disposing);
-			_isDisposed = true;
+			if (!_isDisposed)
+			{
+				base.Dispose(disposing);
+
+				if (_isDirty)
+				{
+					var task = _pages.Write(_descriptor, _data);
+					task.Wait();
+				}
+
+				_pages.Remove(this);
+				_isDisposed = true;
+			}
 		}
 
 		public override void Flush()
@@ -158,6 +164,7 @@ namespace LocalStorage.Paging
 			_initTask.Wait();
 
 			Array.Copy(_data, _position, buffer, offset, count);
+			_position += count;
 			return count;
 		}
 
@@ -167,6 +174,7 @@ namespace LocalStorage.Paging
 				return;
 
 			Array.Copy(buffer, offset, _data, _position, count);
+			_position += count;
 			_isDirty = true;
 		}
 	}

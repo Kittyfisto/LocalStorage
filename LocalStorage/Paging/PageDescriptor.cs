@@ -4,7 +4,8 @@ namespace LocalStorage.Paging
 {
 	internal struct PageDescriptor : IEquatable<PageDescriptor>
 	{
-		public static readonly int HeaderSize = sizeof (PageType) + sizeof (int) + sizeof (int);
+		public const int HeaderSize = sizeof (byte) + sizeof (int) + sizeof (int);
+
 		public readonly long DataOffset;
 		public readonly int DataSize;
 		public readonly int Id;

@@ -25,7 +25,7 @@ namespace LocalStorage.Paging
 		private readonly Thread _thread;
 		private readonly List<PageDescriptor> _unusedPages;
 		private readonly List<PageDescriptor> _usedPages;
-		private readonly List<Page> _workingSet;
+		private readonly Dictionary<int, Page> _workingSet;
 		private readonly BinaryWriter _writer;
 
 		private int _previousPageId;
@@ -44,7 +44,7 @@ namespace LocalStorage.Paging
 
 			_usedPages = new List<PageDescriptor>();
 			_unusedPages = new List<PageDescriptor>();
-			_workingSet = new List<Page>();
+			_workingSet = new Dictionary<int, Page>();
 
 			_ops = new ConcurrentQueue<PageOperation>();
 			_restoreIndex = PageOperation.RestoreIndex();
@@ -111,6 +111,18 @@ namespace LocalStorage.Paging
 			PageOperation op = PageOperation.Read(descriptor, data);
 			_ops.Enqueue(op);
 			return op.Task;
+		}
+
+		public Page Get(PageDescriptor descriptor)
+		{
+			var page = Page.ReadAndCreate(this, descriptor);
+			_workingSet.Add(descriptor.Id, page);
+			return page;
+		}
+
+		public void Remove(Page page)
+		{
+			_workingSet.Remove(page.Descriptor.Id);
 		}
 
 		public Page Allocate(PageType type, int minimumSize)
@@ -252,13 +264,18 @@ namespace LocalStorage.Paging
 					page = Page.WriteAndCreate(this, descriptor);
 					_unusedPages.RemoveAt(i);
 					_usedPages.Add(descriptor);
-					_workingSet.Add(page);
+					_workingSet.Add(descriptor.Id, page);
 					return true;
 				}
 			}
 
 			page = null;
 			return false;
+		}
+
+		internal void Wait()
+		{
+			
 		}
 	}
 }

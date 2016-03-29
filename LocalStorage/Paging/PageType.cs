@@ -2,6 +2,9 @@
 {
 	internal enum PageType : byte
 	{
-		TableDescriptor = 0
+		Invalid = 0,
+
+		StorageDescriptor = 1,
+		TableDescriptor = 2
 	}
 }
