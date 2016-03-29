@@ -12,11 +12,11 @@ namespace LocalStorage.Paging
 		private readonly byte[] _data;
 		private readonly PageDescriptor _descriptor;
 		private readonly Task _initTask;
+		private readonly PageCollection _pages;
 
 		private bool _isDirty;
 		private bool _isDisposed;
 		private int _position;
-		private PageCollection _pages;
 
 		/// <summary>
 		/// </summary>
@@ -30,14 +30,9 @@ namespace LocalStorage.Paging
 			_data = new byte[descriptor.DataSize];
 			_pages = pages;
 
-			if (zeroOut)
-			{
-				_initTask = Pages.Write(Descriptor, _data);
-			}
-			else
-			{
-				_initTask = Pages.Read(descriptor, _data);
-			}
+			_initTask = zeroOut
+				            ? Pages.Write(Descriptor, _data)
+				            : Pages.Read(descriptor, _data);
 
 			if (pages.CanWrite)
 			{

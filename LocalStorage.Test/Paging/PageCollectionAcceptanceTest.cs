@@ -48,6 +48,36 @@ namespace LocalStorage.Test.Paging
 		}
 
 		[Test]
+		[Repeat(100)]
+		[Description("Verifies that reading the contents of a previously written page works")]
+		public void TestWriteAndRead()
+		{
+			using (var stream = new MemoryStream())
+			using (var pages = new PageCollection(stream))
+			{
+				const int dataLength = 128;
+				var data = Enumerable.Range(0, dataLength).Select(x => (byte)x).ToArray();
+				PageDescriptor descriptor;
+
+				using (var page = pages.Allocate(PageType.Invalid, dataLength))
+				{
+					descriptor = page.Descriptor;
+
+					new Action(() => page.Write(data, 0, data.Length))
+						.ShouldNotThrow("Because writing data to a page may never fail");
+				}
+				// Dispose() flushes the page (and waits for the flush to finish) and thus NOW the contents must be there...
+				using (var page = pages.Get(descriptor))
+				{
+					var actualData = new byte[dataLength];
+					page.Read(actualData, 0, actualData.Length).Should().Be(
+						dataLength, "Because reading data from a page should always work in one go");
+					actualData.Should().Equal(data, "Because the data written to the page should've immediately appeared in the page's buffer");
+				}
+			}
+		}
+
+		[Test]
 		[Description("Verifies that creating a page collection on a previously used stream restores all page descriptors")]
 		public void TestOpen([Values(1, 32, 1024)] int numPages, [Values(1024, 2048)] int pageLength)
 		{
