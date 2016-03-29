@@ -10,6 +10,7 @@ namespace LocalStorage.Paging
 	{
 		public enum Type
 		{
+			Nop = 0,
 			Read,
 			Write,
 			RestoreIndex
@@ -22,12 +23,23 @@ namespace LocalStorage.Paging
 
 		public override string ToString()
 		{
-			if (Kind == Type.Read)
+			switch (Kind)
 			{
-				return string.Format("Read @{0}, {1} bytes", Descriptor.DataOffset, Descriptor.DataSize);
-			}
+				case Type.Nop:
+					return "Nop";
+				
+				case Type.Read:
+					return string.Format("Read @{0}, {1} bytes", Descriptor.DataOffset, Descriptor.DataSize);
 
-			return string.Format("Write @{0}, {1} bytes", Descriptor.DataOffset, Descriptor.DataSize);
+				case Type.Write:
+					return string.Format("Write @{0}, {1} bytes", Descriptor.DataOffset, Descriptor.DataSize);
+
+				case Type.RestoreIndex:
+					return "Restore page Index";
+
+				default:
+					return "<Unknown>";
+			}
 		}
 
 		private PageOperation(Type type, PageDescriptor descriptor, byte[] data)
@@ -66,6 +78,11 @@ namespace LocalStorage.Paging
 		public void SetException(Exception exception)
 		{
 			_taskInfo.SetException(exception);
+		}
+
+		public static PageOperation Nop()
+		{
+			return new PageOperation(Type.Nop, new PageDescriptor(), null);
 		}
 	}
 }

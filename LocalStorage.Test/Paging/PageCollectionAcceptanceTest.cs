@@ -40,7 +40,10 @@ namespace LocalStorage.Test.Paging
 					streamData.Should().Equal(new byte[dataLength], "Because the page has not yet been persisted yet");
 				}
 
-				// Dispose() flushes the page (and waits for the flush to finish) and thus NOW the contents must be there...
+				// Dispose() flushes the page, but it does so asynchronously and thus we need to wait
+				// for the queue to be finished
+				pages.Wait();
+
 				stream.Position = PageDescriptor.HeaderSize;
 				stream.Read(streamData, 0, dataLength).Should().Be(dataLength);
 				streamData.Should().Equal(data, "Because the page should've been written to the base stream after having been disposed of");
@@ -66,7 +69,11 @@ namespace LocalStorage.Test.Paging
 					new Action(() => page.Write(data, 0, data.Length))
 						.ShouldNotThrow("Because writing data to a page may never fail");
 				}
-				// Dispose() flushes the page (and waits for the flush to finish) and thus NOW the contents must be there...
+
+				// Dispose() flushes the page, and does so asynchronously, but we don't need
+				// to wait in our test because Page.Read blocks until the page is actually refreshed
+				// with the actual data...
+
 				using (var page = pages.Get(descriptor))
 				{
 					var actualData = new byte[dataLength];

@@ -169,6 +169,9 @@ namespace LocalStorage.Paging
 				var kind = op.Kind;
 				switch (kind)
 				{
+					case PageOperation.Type.Nop:
+						break;
+
 					case PageOperation.Type.Read:
 						ExecuteRead(op);
 						break;
@@ -273,9 +276,11 @@ namespace LocalStorage.Paging
 			return false;
 		}
 
-		internal void Wait()
+		public void Wait()
 		{
-			
+			var op = PageOperation.Nop();
+			_ops.Enqueue(op);
+			op.Task.Wait();
 		}
 	}
 }
