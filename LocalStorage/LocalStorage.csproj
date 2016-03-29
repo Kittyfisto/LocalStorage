@@ -53,6 +53,7 @@
     <Compile Include="Paging\PageDescriptor.cs" />
     <Compile Include="Paging\PageCollection.cs" />
     <Compile Include="EmbeddedStorage.cs" />
+    <Compile Include="Paging\PageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tables\Table.cs" />
     <Compile Include="Tables\TableCollection.cs" />

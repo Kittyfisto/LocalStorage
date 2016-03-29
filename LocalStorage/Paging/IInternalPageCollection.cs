@@ -6,7 +6,7 @@ namespace LocalStorage.Paging
 	{
 		Task Write(PageDescriptor descriptor, byte[] data);
 		Task Read(PageDescriptor descriptor, byte[] data);
-		Page Allocate(int minimumSize);
+		Page Allocate(PageType type, int minimumSize);
 		void Free(Page page);
 	}
 }

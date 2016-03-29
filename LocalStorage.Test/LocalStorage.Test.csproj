@@ -51,6 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Paging\DebugStream.cs" />
+    <Compile Include="Paging\PageCollectionAcceptanceTest.cs" />
     <Compile Include="Paging\PageCollectionTest.cs" />
     <Compile Include="StorageTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

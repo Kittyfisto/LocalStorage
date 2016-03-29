@@ -1,8 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
-using log4net;
 
 namespace LocalStorage.Paging
 {
@@ -11,13 +8,11 @@ namespace LocalStorage.Paging
 	/// </summary>
 	internal struct PageOperation
 	{
-		private static readonly ILog Log =
-			LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
 		public enum Type
 		{
 			Read,
-			Write
+			Write,
+			RestoreIndex
 		}
 
 		public readonly byte[] Data;
@@ -29,10 +24,10 @@ namespace LocalStorage.Paging
 		{
 			if (Kind == Type.Read)
 			{
-				return string.Format("Read @{0}, {1} bytes", Descriptor.Offset, Descriptor.Size);
+				return string.Format("Read @{0}, {1} bytes", Descriptor.DataOffset, Descriptor.DataSize);
 			}
 
-			return string.Format("Write @{0}, {1} bytes", Descriptor.Offset, Descriptor.Size);
+			return string.Format("Write @{0}, {1} bytes", Descriptor.DataOffset, Descriptor.DataSize);
 		}
 
 		private PageOperation(Type type, PageDescriptor descriptor, byte[] data)
@@ -58,33 +53,19 @@ namespace LocalStorage.Paging
 			return new PageOperation(Type.Write, descriptor, data);
 		}
 
-		public void Execute(Stream sourceStream)
+		public static PageOperation RestoreIndex()
 		{
-			try
-			{
-				sourceStream.Position = Descriptor.Offset;
+			return new PageOperation(Type.RestoreIndex, new PageDescriptor(), null);
+		}
 
-				switch (Kind)
-				{
-				case Type.Read:
-					sourceStream.Read(Data, 0, Data.Length);
-					break;
+		public void SetFinished()
+		{
+			_taskInfo.SetResult(42);
+		}
 
-				case Type.Write:
-					sourceStream.Write(Data, 0 , Data.Length);
-					break;
-
-				default:
-					Log.ErrorFormat("Unexpected operation: {0}", Kind);
-					break;
-				}
-
-				_taskInfo.SetResult(42);
-			}
-			catch (Exception e)
-			{
-				_taskInfo.SetException(e);
-			}
+		public void SetException(Exception exception)
+		{
+			_taskInfo.SetException(exception);
 		}
 	}
 }

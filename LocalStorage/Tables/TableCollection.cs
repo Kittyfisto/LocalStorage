@@ -40,7 +40,7 @@ namespace LocalStorage.Tables
 			if (tableName == null) throw new ArgumentNullException("tableName");
 
 			var header = new TableHeader(tableName, typeof(T));
-			var page = _pages.Allocate(header.Size);
+			var page = _pages.Allocate(PageType.TableDescriptor, header.Size);
 			header.WriteTo(page);
 			page.Flush();
 
