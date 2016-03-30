@@ -4,21 +4,17 @@ namespace LocalStorage.Paging
 {
 	internal struct PageDescriptor : IEquatable<PageDescriptor>
 	{
-		public const int HeaderSize = sizeof (byte) + sizeof (int) + sizeof (int);
+		public const int HeaderSize = sizeof (byte) + sizeof (int);
+		public const int DefaultSize = 1024;
 
 		public readonly long DataOffset;
-		public readonly int DataSize;
 		public readonly int Id;
 		public readonly PageType Type;
 
-		public PageDescriptor(int id, long dataOffset, int dataSize, PageType type)
+		public PageDescriptor(int id, long dataOffset, PageType type)
 		{
-			if (dataSize < 0)
-				throw new ArgumentOutOfRangeException("dataSize");
-
 			Id = id;
 			DataOffset = dataOffset;
-			DataSize = dataSize;
 			Type = type;
 		}
 
@@ -26,13 +22,12 @@ namespace LocalStorage.Paging
 		{
 			Id = page.Id;
 			DataOffset = page.DataOffset;
-			DataSize = page.DataSize;
 			Type = newType;
 		}
 
 		public bool Equals(PageDescriptor other)
 		{
-			return Id == other.Id && DataOffset == other.DataOffset && DataSize == other.DataSize && Type == other.Type;
+			return Id == other.Id && DataOffset == other.DataOffset && Type == other.Type;
 		}
 
 		public override bool Equals(object obj)
@@ -45,9 +40,8 @@ namespace LocalStorage.Paging
 		{
 			unchecked
 			{
-				var hashCode = (int) Id;
+				var hashCode = Id;
 				hashCode = (hashCode*397) ^ DataOffset.GetHashCode();
-				hashCode = (hashCode*397) ^ DataSize;
 				hashCode = (hashCode*397) ^ (int) Type;
 				return hashCode;
 			}
@@ -65,11 +59,10 @@ namespace LocalStorage.Paging
 
 		public override string ToString()
 		{
-			return string.Format("{0} (#{1})@{2}, {3} bytes",
+			return string.Format("{0} (#{1})@{2}",
 			                     Type,
 			                     Id,
-			                     DataOffset,
-			                     DataSize);
+			                     DataOffset);
 		}
 	}
 }

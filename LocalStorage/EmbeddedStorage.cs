@@ -25,11 +25,11 @@ namespace LocalStorage
 			_stream = stream;
 			_fileName = fileName;
 			_disposeStream = disposeStream;
-			_pages = new PageCollection(stream);
+			_pages = new PageCollection(stream, PageDescriptor.DefaultSize);
 
 			if (create)
 			{
-				using (var header = _pages.Allocate(PageType.StorageDescriptor, StorageDescriptor.HeaderSize))
+				using (var header = _pages.Allocate(PageType.StorageDescriptor))
 				{
 					_descriptor = new StorageDescriptor
 						{

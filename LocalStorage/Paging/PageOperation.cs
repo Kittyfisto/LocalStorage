@@ -29,10 +29,10 @@ namespace LocalStorage.Paging
 					return "Nop";
 				
 				case Type.Read:
-					return string.Format("Read @{0}, {1} bytes", Descriptor.DataOffset, Descriptor.DataSize);
+					return string.Format("Read @{0}", Descriptor.DataOffset);
 
 				case Type.Write:
-					return string.Format("Write @{0}, {1} bytes", Descriptor.DataOffset, Descriptor.DataSize);
+					return string.Format("Write @{0}", Descriptor.DataOffset);
 
 				case Type.RestoreIndex:
 					return "Restore page Index";

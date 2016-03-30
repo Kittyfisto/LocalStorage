@@ -16,14 +16,16 @@ namespace LocalStorage.Test.Paging
 		[Description("Verifies that the contents of a page are only written to the base stream after the page has been disposed of")]
 		public void TestPageWriteAndDispose()
 		{
+			const int dataLength = 128;
+			const int pageLength = dataLength + PageDescriptor.HeaderSize;
+
 			using (var stream = new MemoryStream())
-			using (var pages = new PageCollection(stream))
+			using (var pages = new PageCollection(stream, pageLength))
 			{
-				const int dataLength = 128;
 				var data = Enumerable.Range(0, dataLength).Select(x => (byte)x).ToArray();
 				var streamData = new byte[dataLength];
 
-				using (var page = pages.Allocate(PageType.Invalid, dataLength))
+				using (var page = pages.Allocate(PageType.Invalid))
 				{
 					new Action(() => page.Write(data, 0, data.Length))
 						.ShouldNotThrow("Because writing data to a page may never fail");
@@ -55,14 +57,16 @@ namespace LocalStorage.Test.Paging
 		[Description("Verifies that reading the contents of a previously written page works")]
 		public void TestWriteAndRead()
 		{
+			const int dataLength = 128;
+			const int pageLength = dataLength + PageDescriptor.HeaderSize;
+
 			using (var stream = new MemoryStream())
-			using (var pages = new PageCollection(stream))
+			using (var pages = new PageCollection(stream, pageLength))
 			{
-				const int dataLength = 128;
 				var data = Enumerable.Range(0, dataLength).Select(x => (byte)x).ToArray();
 				PageDescriptor descriptor;
 
-				using (var page = pages.Allocate(PageType.Invalid, dataLength))
+				using (var page = pages.Allocate(PageType.Invalid))
 				{
 					descriptor = page.Descriptor;
 
@@ -93,19 +97,19 @@ namespace LocalStorage.Test.Paging
 				var descriptors = new List<PageDescriptor>();
 				using (var stream = new MemoryStream())
 				{
-					using (var pages = new PageCollection(stream))
+					using (var pages = new PageCollection(stream, pageLength))
 					{
 						for (int i = 0; i < numPages; ++i)
 						{
-							var page = pages.Allocate(PageType.TableDescriptor, pageLength);
+							var page = pages.Allocate(PageType.TableDescriptor);
 							descriptors.Add(page.Descriptor);
 						}
 					}
 
-					stream.Position.Should().Be(numPages * pageLength + numPages * PageDescriptor.HeaderSize);
+					stream.Position.Should().Be(numPages * pageLength);
 					stream.Position = 0;
 
-					using (var pages = new PageCollection(stream))
+					using (var pages = new PageCollection(stream, pageLength))
 					{
 						pages.Pages.Count().Should().Be(numPages);
 						pages.Pages.Should().Equal(descriptors);

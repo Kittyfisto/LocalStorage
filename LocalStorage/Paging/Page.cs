@@ -27,7 +27,7 @@ namespace LocalStorage.Paging
 		{
 			Pages = pages;
 			_descriptor = descriptor;
-			_data = new byte[descriptor.DataSize];
+			_data = new byte[pages.PageSize - PageDescriptor.HeaderSize];
 			_pages = pages;
 
 			_initTask = zeroOut
@@ -142,7 +142,7 @@ namespace LocalStorage.Paging
 					break;
 
 				case SeekOrigin.End:
-					Position = _descriptor.DataSize + offset;
+					Position = _data.Length + offset;
 					break;
 			}
 

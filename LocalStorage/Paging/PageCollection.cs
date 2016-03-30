@@ -27,15 +27,18 @@ namespace LocalStorage.Paging
 		private readonly List<PageDescriptor> _usedPages;
 		private readonly Dictionary<int, Page> _workingSet;
 		private readonly BinaryWriter _writer;
+		private readonly int _pageSize;
 
 		private int _previousPageId;
 		private bool _isDisposed;
 		private long _streamEnd;
 
-		public PageCollection(Stream stream)
+		public PageCollection(Stream stream, int pageSize)
 		{
 			if (stream == null) throw new ArgumentNullException("stream");
+			if (pageSize <= PageDescriptor.HeaderSize) throw new ArgumentOutOfRangeException("pageSize", "The specified page size must be bigger than the size of its header");
 
+			_pageSize = pageSize;
 			_stream = stream;
 			_streamStart = stream.Position;
 			_streamEnd = stream.Length;
@@ -83,6 +86,11 @@ namespace LocalStorage.Paging
 			get { return !_stream.CanWrite; }
 		}
 
+		public int PageSize
+		{
+			get { return _pageSize; }
+		}
+
 		public Page this[int index]
 		{
 			get { throw new NotImplementedException(); }
@@ -101,6 +109,9 @@ namespace LocalStorage.Paging
 
 		public Task Write(PageDescriptor descriptor, byte[] data)
 		{
+			if (data == null) throw new ArgumentNullException("data");
+			if (data.Length != _pageSize - PageDescriptor.HeaderSize) throw new ArgumentOutOfRangeException("data.Length");
+
 			PageOperation op = PageOperation.Write(descriptor, data);
 			_ops.Enqueue(op);
 			return op.Task;
@@ -108,6 +119,9 @@ namespace LocalStorage.Paging
 
 		public Task Read(PageDescriptor descriptor, byte[] data)
 		{
+			if (data == null) throw new ArgumentNullException("data");
+			if (data.Length != _pageSize - PageDescriptor.HeaderSize) throw new ArgumentOutOfRangeException("data.Length");
+
 			PageOperation op = PageOperation.Read(descriptor, data);
 			_ops.Enqueue(op);
 			return op.Task;
@@ -125,14 +139,14 @@ namespace LocalStorage.Paging
 			_workingSet.Remove(page.Descriptor.Id);
 		}
 
-		public Page Allocate(PageType type, int minimumSize)
+		public Page Allocate(PageType type)
 		{
 			_restoreIndex.Task.Wait();
 
 			Page page;
-			if (!TryGetFreedPage(type, minimumSize, out page))
+			if (!TryGetFreedPage(type, out page))
 			{
-				page = AllocatePage(type, minimumSize);
+				page = AllocatePage(type);
 			}
 
 			return page;
@@ -202,14 +216,13 @@ namespace LocalStorage.Paging
 			while (_stream.Position < _stream.Length)
 			{
 				var id = _reader.ReadInt32();
-				var dataSize = _reader.ReadInt32();
 				var type = _reader.ReadByte();
 				var offset = _stream.Position - _streamStart;
-				var descriptor = new PageDescriptor(id, offset, dataSize, (PageType)type);
+				var descriptor = new PageDescriptor(id, offset, (PageType)type);
 				_usedPages.Add(descriptor);
 
 				// Advance to the next page
-				_stream.Seek(dataSize, SeekOrigin.Current);
+				_stream.Seek(_pageSize - PageDescriptor.HeaderSize, SeekOrigin.Current);
 			}
 		}
 
@@ -217,7 +230,6 @@ namespace LocalStorage.Paging
 		{
 			_writer.BaseStream.Position = op.Descriptor.DataOffset - PageDescriptor.HeaderSize + _streamStart;
 			_writer.Write(op.Descriptor.Id);
-			_writer.Write(op.Descriptor.DataSize);
 			_writer.Write((byte) op.Descriptor.Type);
 			_writer.Write(op.Data, 0, op.Data.Length);
 			_writer.Flush();
@@ -229,17 +241,17 @@ namespace LocalStorage.Paging
 			_reader.Read(op.Data, 0, op.Data.Length);
 		}
 
-		private Page AllocatePage(PageType type, int minimumDataSize)
+		private Page AllocatePage(PageType type)
 		{
 			int id = Interlocked.Increment(ref _previousPageId);
 
 			long pageOffset = _streamEnd - _streamStart;
 			long pageDataOffset = pageOffset + PageDescriptor.HeaderSize;
 
-			var pageSize = minimumDataSize + PageDescriptor.HeaderSize;
+			var pageSize = _pageSize;
 			Interlocked.Add(ref _streamEnd, pageSize);
 
-			var descriptor = new PageDescriptor(id, pageDataOffset, minimumDataSize, type);
+			var descriptor = new PageDescriptor(id, pageDataOffset, type);
 			_usedPages.Add(descriptor);
 
 			Page page = Page.WriteAndCreate(this, descriptor);
@@ -247,29 +259,25 @@ namespace LocalStorage.Paging
 		}
 
 		/// <summary>
-		///     Tries to locate a previously (but no longer) used page of sufficient size.
+		///     Tries to locate a previously (but no longer) used page.
 		///     Changes the page's type to the given type, if necessary.
 		/// </summary>
 		/// <remarks>
 		///     The returned page may have a bigger data that is required.
 		/// </remarks>
 		/// <param name="type"></param>
-		/// <param name="minimumSize"></param>
 		/// <param name="page"></param>
 		/// <returns></returns>
-		private bool TryGetFreedPage(PageType type, int minimumSize, out Page page)
+		private bool TryGetFreedPage(PageType type, out Page page)
 		{
-			for (int i = 0; i < _unusedPages.Count; ++i)
+			for (int i = _unusedPages.Count-1; i >= 0; --i)
 			{
-				if (_unusedPages[i].DataSize >= minimumSize)
-				{
-					var descriptor = new PageDescriptor(_unusedPages[i], type);
-					page = Page.WriteAndCreate(this, descriptor);
-					_unusedPages.RemoveAt(i);
-					_usedPages.Add(descriptor);
-					_workingSet.Add(descriptor.Id, page);
-					return true;
-				}
+				var descriptor = new PageDescriptor(_unusedPages[i], type);
+				page = Page.WriteAndCreate(this, descriptor);
+				_unusedPages.RemoveAt(i);
+				_usedPages.Add(descriptor);
+				_workingSet.Add(descriptor.Id, page);
+				return true;
 			}
 
 			page = null;
