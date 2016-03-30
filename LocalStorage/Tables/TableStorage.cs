@@ -37,7 +37,20 @@ namespace LocalStorage.Tables
 					var dataType = types.Load(view.DataTypeIndex);
 					var tableType = typeof (Table<>).MakeGenericType(dataType);
 					var tableName = strings.Load(view.TableNameIndex);
-					var table = (ITable)Activator.CreateInstance(tableType, pages, tableName);
+
+					var count = view.ColumnCount;
+					var columns = new List<IColumn>(count);
+					for (int i = 0; i < count; ++i)
+					{
+						var description = view.Columns[i];
+						var columnName = _strings.Load(description.NameIndex);
+						var columnDataType = _types.Load(description.DataTypeIndex);
+						var columnType = typeof (Column<>).MakeGenericType(columnDataType);
+						var column = (IColumn) Activator.CreateInstance(columnType, columnName);
+						columns.Add(column);
+					}
+
+					var table = (ITable)Activator.CreateInstance(tableType, pages, tableName, columns);
 					_tables.Add(tableName, table);
 				}
 			}
@@ -58,22 +71,30 @@ namespace LocalStorage.Tables
 			get { return _tables.Count; }
 		}
 
-		public ITable Add<T>(string tableName)
+		public ITable<T> Add<T>(string tableName)
 		{
 			if (tableName == null) throw new ArgumentNullException("tableName");
 
-			var columns = new List<ColumnDescription>();
 			var properties = GetTableProperties<T>();
+			var columnDescriptions = new List<ColumnDescription>(properties.Count);
+			var columns = new List<IColumn>(properties.Count);
 
 			// TODO: Find a way to commit all changes in one transaction...
 			foreach (PropertyInfo property in properties)
 			{
+				var columnName = property.Name;
+				var columnDataType = property.PropertyType;
+
 				var description = new ColumnDescription
 					{
-						NameIndex = _strings.Allocate(property.Name),
-						TypeIndex = _types.Allocate(property.PropertyType)
+						NameIndex = _strings.Allocate(columnName),
+						DataTypeIndex = _types.Allocate(columnDataType)
 					};
-				columns.Add(description);
+				columnDescriptions.Add(description);
+
+				var columnType = typeof (Column<>).MakeGenericType(columnDataType);
+				var column = (IColumn) Activator.CreateInstance(columnType, columnName);
+				columns.Add(column);
 			}
 
 			Page tableDescriptionPage = _pages.Allocate(PageType.TableDescriptor);
@@ -81,18 +102,18 @@ namespace LocalStorage.Tables
 				{
 					TableNameIndex = _strings.Allocate(tableName),
 					DataTypeIndex = _types.Allocate(typeof(T)),
-					ColumnCount = columns.Count
+					ColumnCount = columnDescriptions.Count
 				};
 
 			// TODO: Account for crossing the page boundary
-			for (int i = 0; i < columns.Count; ++i)
+			for (int i = 0; i < columnDescriptions.Count; ++i)
 			{
-				view.Columns[i] = columns[i];
+				view.Columns[i] = columnDescriptions[i];
 			}
 
 			view.Commit();
 
-			var table = new Table<T>(_pages, tableName);
+			var table = new Table<T>(_pages, tableName, columns);
 			_tables.Add(tableName, table);
 			return table;
 		}
@@ -102,7 +123,7 @@ namespace LocalStorage.Tables
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
-		private IEnumerable<PropertyInfo> GetTableProperties<T>()
+		private List<PropertyInfo> GetTableProperties<T>()
 		{
 			PropertyInfo[] allProperties =
 				typeof (T).GetProperties(BindingFlags.Public | BindingFlags.Instance);

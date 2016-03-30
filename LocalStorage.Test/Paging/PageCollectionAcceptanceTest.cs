@@ -88,28 +88,25 @@ namespace LocalStorage.Test.Paging
 		[Description("Verifies that creating a page collection on a previously used stream restores all page descriptors")]
 		public void TestOpen([Values(1, 32, 1024)] int numPages, [Values(1024, 2048)] int pageLength)
 		{
-			for (int x = 0; x < 100; ++x)
+			var descriptors = new List<PageDescriptor>();
+			using (var stream = new MemoryStream())
 			{
-				var descriptors = new List<PageDescriptor>();
-				using (var stream = new MemoryStream())
+				using (var pages = new PageCollection(stream, pageLength))
 				{
-					using (var pages = new PageCollection(stream, pageLength))
+					for (int i = 0; i < numPages; ++i)
 					{
-						for (int i = 0; i < numPages; ++i)
-						{
-							var page = pages.Allocate(PageType.TableDescriptor);
-							descriptors.Add(page.Descriptor);
-						}
+						var page = pages.Allocate(PageType.TableDescriptor);
+						descriptors.Add(page.Descriptor);
 					}
+				}
 
-					stream.Position.Should().Be(numPages * pageLength);
-					stream.Position = 0;
+				stream.Position.Should().Be(numPages * pageLength);
+				stream.Position = 0;
 
-					using (var pages = new PageCollection(stream, pageLength))
-					{
-						pages.Pages.Count().Should().Be(numPages);
-						pages.Pages.Should().Equal(descriptors);
-					}
+				using (var pages = new PageCollection(stream, pageLength))
+				{
+					pages.Pages.Count().Should().Be(numPages);
+					pages.Pages.Should().Equal(descriptors);
 				}
 			}
 		}

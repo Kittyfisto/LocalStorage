@@ -38,7 +38,7 @@ namespace LocalStorage.Paging.Views
 				_reader.BaseStream.Position = _offset + index*ColumnDescriptionSize;
 				return new ColumnDescription
 				{
-					TypeIndex = _reader.ReadInt32(),
+					DataTypeIndex = _reader.ReadInt32(),
 					NameIndex = _reader.ReadInt32()
 				};
 			}
@@ -48,7 +48,7 @@ namespace LocalStorage.Paging.Views
 					throw new IndexOutOfRangeException();
 
 				_writer.BaseStream.Position = _offset + index*ColumnDescriptionSize;
-				_writer.Write(value.TypeIndex);
+				_writer.Write(value.DataTypeIndex);
 				_writer.Write(value.NameIndex);
 			}
 		}

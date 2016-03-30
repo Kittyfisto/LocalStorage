@@ -18,6 +18,8 @@ namespace LocalStorage
 		/// </summary>
 		Type DataType { get; }
 
+		IEnumerable<IColumn> Columns { get; }
+
 		string Name { get; }
 	}
 }

@@ -14,16 +14,22 @@ namespace LocalStorage.Tables
 
 		private readonly PageCollection _pages;
 		private readonly string _tableName;
+		private readonly List<IColumn> _columns;
 
 		static Table()
 		{
 			DataType = typeof (T);
 		}
 
-		public Table(PageCollection pages, string tableName)
+		public Table(PageCollection pages, string tableName, List<IColumn> columns)
 		{
+			if (pages == null) throw new ArgumentNullException("pages");
+			if (tableName == null) throw new ArgumentNullException("tableName");
+			if (columns == null) throw new ArgumentNullException("columns");
+
 			_pages = pages;
 			_tableName = tableName;
+			_columns = columns;
 		}
 
 		public IEnumerator<T> GetEnumerator()
@@ -79,6 +85,11 @@ namespace LocalStorage.Tables
 		public bool IsReadOnly
 		{
 			get { throw new NotImplementedException(); }
+		}
+
+		public IEnumerable<IColumn> Columns
+		{
+			get { return _columns; }
 		}
 	}
 }

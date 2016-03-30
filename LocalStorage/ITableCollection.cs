@@ -7,6 +7,6 @@ namespace LocalStorage
 	{
 		int Count { get; }
 
-		ITable Add<T>(string tableName);
+		ITable<T> Add<T>(string tableName);
 	}
 }
