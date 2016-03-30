@@ -31,7 +31,6 @@ namespace LocalStorage.Paging
 
 		private int _previousPageId;
 		private bool _isDisposed;
-		private long _streamEnd;
 
 		public PageCollection(Stream stream, int pageSize)
 		{
@@ -41,7 +40,6 @@ namespace LocalStorage.Paging
 			_pageSize = pageSize;
 			_stream = stream;
 			_streamStart = stream.Position;
-			_streamEnd = stream.Length;
 			_writer = new BinaryWriter(_stream);
 			_reader = new BinaryReader(_stream);
 
@@ -244,12 +242,10 @@ namespace LocalStorage.Paging
 		private Page AllocatePage(PageType type)
 		{
 			int id = Interlocked.Increment(ref _previousPageId);
-
-			long pageOffset = _streamEnd - _streamStart;
+			long pageOffset = _streamStart + id*_pageSize;
 			long pageDataOffset = pageOffset + PageDescriptor.HeaderSize;
 
 			var pageSize = _pageSize;
-			Interlocked.Add(ref _streamEnd, pageSize);
 
 			var descriptor = new PageDescriptor(id, pageDataOffset, type);
 			_usedPages.Add(descriptor);

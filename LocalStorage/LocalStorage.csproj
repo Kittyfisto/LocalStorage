@@ -50,11 +50,13 @@
     <Compile Include="ITableCollection.cs" />
     <Compile Include="Paging\IInternalPageCollection.cs" />
     <Compile Include="ITable.cs" />
+    <Compile Include="Paging\IPageView.cs" />
     <Compile Include="Paging\PageOperation.cs" />
     <Compile Include="Paging\Page.cs" />
     <Compile Include="Paging\PageDescriptor.cs" />
     <Compile Include="Paging\PageCollection.cs" />
     <Compile Include="EmbeddedStorage.cs" />
+    <Compile Include="Paging\Views\FreePagesView.cs" />
     <Compile Include="Paging\PageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StorageDescriptor.cs" />

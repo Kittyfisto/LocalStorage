@@ -5,6 +5,7 @@
 		Invalid = 0,
 
 		StorageDescriptor = 1,
-		TableDescriptor = 2
+		FreePageIndex = 2,
+		TableDescriptor = 3
 	}
 }
