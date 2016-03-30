@@ -13,12 +13,12 @@ namespace LocalStorage.Tables
 	internal sealed class TableStorage
 		: ITableCollection
 	{
-		private readonly PageCollection _pages;
+		private readonly PageStorage _pages;
 		private readonly StringStorage _strings;
 		private readonly Dictionary<string, ITable> _tables;
 		private readonly TypeStorage _types;
 
-		public TableStorage(PageCollection pages, StringStorage strings, TypeStorage types)
+		public TableStorage(PageStorage pages, StringStorage strings, TypeStorage types)
 		{
 			if (pages == null) throw new ArgumentNullException("pages");
 			if (strings == null) throw new ArgumentNullException("strings");
@@ -87,7 +87,7 @@ namespace LocalStorage.Tables
 
 				var description = new ColumnDescription
 					{
-						NameIndex = _strings.Allocate(columnName),
+						NameIndex = _strings.Add(columnName),
 						DataTypeIndex = _types.Allocate(columnDataType)
 					};
 				columnDescriptions.Add(description);
@@ -100,7 +100,7 @@ namespace LocalStorage.Tables
 			Page tableDescriptionPage = _pages.Allocate(PageType.TableDescriptor);
 			var view = new TableDescriptionView(tableDescriptionPage)
 				{
-					TableNameIndex = _strings.Allocate(tableName),
+					TableNameIndex = _strings.Add(tableName),
 					DataTypeIndex = _types.Allocate(typeof(T)),
 					ColumnCount = columnDescriptions.Count
 				};

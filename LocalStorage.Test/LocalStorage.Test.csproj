@@ -63,6 +63,7 @@
     <Compile Include="Paging\Views\TableDescriptionViewTest.cs" />
     <Compile Include="Paging\PageTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Strings\StringStorageTest.cs" />
     <Compile Include="TablesTest.cs" />
   </ItemGroup>
   <ItemGroup>

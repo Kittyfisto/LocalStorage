@@ -24,7 +24,7 @@ namespace LocalStorage.Test.Paging.Views
 		public void TestProperties()
 		{
 			using (var stream = new MemoryStream())
-			using (var pages = new PageCollection(stream, 1024))
+			using (var pages = new PageStorage(stream, 1024))
 			using (var page = pages.Allocate(PageType.TableDescriptor))
 			{
 				var view = new TableDescriptionView(page);

@@ -56,7 +56,7 @@
     <Compile Include="Paging\PageOperation.cs" />
     <Compile Include="Paging\Page.cs" />
     <Compile Include="Paging\PageDescriptor.cs" />
-    <Compile Include="Paging\PageCollection.cs" />
+    <Compile Include="Paging\PageStorage.cs" />
     <Compile Include="EmbeddedStorage.cs" />
     <Compile Include="Paging\Views\AbstractLinkedListPageView.cs" />
     <Compile Include="Paging\Views\AbstractPageView.cs" />

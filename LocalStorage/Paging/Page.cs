@@ -11,7 +11,7 @@ namespace LocalStorage.Paging
 		private readonly byte[] _data;
 		private readonly PageDescriptor _descriptor;
 		private readonly Task _initTask;
-		private readonly PageCollection _pages;
+		private readonly PageStorage _pages;
 
 		private bool _isDirty;
 		private int _position;
@@ -21,7 +21,7 @@ namespace LocalStorage.Paging
 		/// <param name="pages"></param>
 		/// <param name="descriptor"></param>
 		/// <param name="zeroOut">When true, then the page's content must be zeroed out before any read operation may continue</param>
-		private Page(PageCollection pages, PageDescriptor descriptor, bool zeroOut)
+		private Page(PageStorage pages, PageDescriptor descriptor, bool zeroOut)
 		{
 			_pages = pages;
 			_descriptor = descriptor;
@@ -89,12 +89,12 @@ namespace LocalStorage.Paging
 		///     Creates a new page and flushes it to the page collection.
 		/// </summary>
 		/// <returns></returns>
-		public static Page WriteAndCreate(PageCollection pages, PageDescriptor descriptor)
+		public static Page WriteAndCreate(PageStorage pages, PageDescriptor descriptor)
 		{
 			return new Page(pages, descriptor, true);
 		}
 
-		public static Page ReadAndCreate(PageCollection pages, PageDescriptor descriptor)
+		public static Page ReadAndCreate(PageStorage pages, PageDescriptor descriptor)
 		{
 			return new Page(pages, descriptor, false);
 		}

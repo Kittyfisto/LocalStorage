@@ -15,7 +15,7 @@ namespace LocalStorage
 		, IDisposable
 	{
 		private readonly string _fileName;
-		private readonly PageCollection _pages;
+		private readonly PageStorage _pages;
 		private readonly TableStorage _tables;
 		private readonly StorageHeaderView _header;
 		private readonly bool _disposeStream;
@@ -30,7 +30,7 @@ namespace LocalStorage
 			_stream = stream;
 			_fileName = fileName;
 			_disposeStream = disposeStream;
-			_pages = new PageCollection(stream, PageDescriptor.DefaultSize);
+			_pages = new PageStorage(stream, PageDescriptor.DefaultSize);
 
 			if (create)
 			{

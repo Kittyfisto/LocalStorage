@@ -16,7 +16,7 @@ namespace LocalStorage.Test.Paging
 		public void TestOpen([Values(1, 12, 1024, 10000)] int numPages, [Values(1024, 2048)] int pageLength)
 		{
 			var stream = new MemoryStream();
-			var pages = new PageCollection(stream, pageLength);
+			var pages = new PageStorage(stream, pageLength);
 
 			var descriptors = new List<PageDescriptor>();
 			for (int i = 0; i < numPages; ++i)
@@ -29,7 +29,7 @@ namespace LocalStorage.Test.Paging
 			stream.Position.Should().Be(numPages*pageLength);
 
 			stream.Position = 0;
-			pages = new PageCollection(stream, pageLength);
+			pages = new PageStorage(stream, pageLength);
 			pages.Pages.Count().Should().Be(numPages);
 			pages.Pages.Should().Equal(descriptors);
 		}
@@ -41,7 +41,7 @@ namespace LocalStorage.Test.Paging
 			int headerSize = sizeof(uint) + sizeof(PageType);
 
 			var stream = new MemoryStream();
-			var pages = new PageCollection(stream, pageLength);
+			var pages = new PageStorage(stream, pageLength);
 
 			Page page = pages.Allocate(PageType.TableDescriptor);
 			page.Wait();
@@ -73,7 +73,7 @@ namespace LocalStorage.Test.Paging
 		public void TestAllocateTwoPages([Values(128, 1024, 2048)] int pageLength)
 		{
 			var stream = new MemoryStream();
-			var pages = new PageCollection(stream, pageLength);
+			var pages = new PageStorage(stream, pageLength);
 
 			var first = pages.Allocate(PageType.TableDescriptor);
 			first.Should().NotBeNull();

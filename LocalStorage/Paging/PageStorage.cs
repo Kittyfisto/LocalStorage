@@ -9,7 +9,7 @@ using log4net;
 
 namespace LocalStorage.Paging
 {
-	internal sealed class PageCollection
+	internal sealed class PageStorage
 		: IInternalPageCollection
 		  , IDisposable
 	{
@@ -31,7 +31,7 @@ namespace LocalStorage.Paging
 		private int _previousPageId;
 		private bool _isDisposed;
 
-		public PageCollection(Stream stream, int pageSize)
+		public PageStorage(Stream stream, int pageSize)
 		{
 			if (stream == null) throw new ArgumentNullException("stream");
 			if (pageSize <= PageDescriptor.HeaderSize) throw new ArgumentOutOfRangeException("pageSize", "The specified page size must be bigger than the size of its header");
@@ -87,6 +87,11 @@ namespace LocalStorage.Paging
 			get { return _pageSize; }
 		}
 
+		public int Count
+		{
+			get { return _usedPages.Count; }
+		}
+
 		public Page this[int index]
 		{
 			get { throw new NotImplementedException(); }
@@ -121,6 +126,12 @@ namespace LocalStorage.Paging
 			PageOperation op = PageOperation.Read(descriptor, data);
 			_ops.Enqueue(op);
 			return op.Task;
+		}
+
+		public Page Load(int id, PageType type)
+		{
+			var descriptor = new PageDescriptor(id, id*_pageSize + PageDescriptor.HeaderSize, type);
+			return Load(descriptor);
 		}
 
 		public Page Load(PageDescriptor descriptor)

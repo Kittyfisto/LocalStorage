@@ -6,10 +6,10 @@ namespace LocalStorage.Types
 {
 	internal sealed class TypeStorage
 	{
-		private readonly PageCollection _pages;
+		private readonly PageStorage _pages;
 		private readonly StringStorage _strings;
 
-		public TypeStorage(PageCollection pages, StringStorage strings)
+		public TypeStorage(PageStorage pages, StringStorage strings)
 		{
 			if (pages == null) throw new ArgumentNullException("pages");
 			if (strings == null) throw new ArgumentNullException("strings");
@@ -20,7 +20,7 @@ namespace LocalStorage.Types
 
 		public int Allocate(Type type)
 		{
-			return _strings.Allocate(type.AssemblyQualifiedName);
+			return _strings.Add(type.AssemblyQualifiedName);
 		}
 
 		public Type Load(int dataTypeIndex)

@@ -20,7 +20,7 @@ namespace LocalStorage.Test.Paging
 			const int pageLength = dataLength + PageDescriptor.HeaderSize;
 
 			using (var stream = new MemoryStream())
-			using (var pages = new PageCollection(stream, pageLength))
+			using (var pages = new PageStorage(stream, pageLength))
 			{
 				var data = Enumerable.Range(0, dataLength).Select(x => (byte)x).ToArray();
 				var streamData = new byte[dataLength];
@@ -59,7 +59,7 @@ namespace LocalStorage.Test.Paging
 			const int pageLength = dataLength + PageDescriptor.HeaderSize;
 
 			using (var stream = new MemoryStream())
-			using (var pages = new PageCollection(stream, pageLength))
+			using (var pages = new PageStorage(stream, pageLength))
 			{
 				var data = Enumerable.Range(0, dataLength).Select(x => (byte)x).ToArray();
 				PageDescriptor descriptor;
@@ -91,7 +91,7 @@ namespace LocalStorage.Test.Paging
 			var descriptors = new List<PageDescriptor>();
 			using (var stream = new MemoryStream())
 			{
-				using (var pages = new PageCollection(stream, pageLength))
+				using (var pages = new PageStorage(stream, pageLength))
 				{
 					for (int i = 0; i < numPages; ++i)
 					{
@@ -103,7 +103,7 @@ namespace LocalStorage.Test.Paging
 				stream.Position.Should().Be(numPages * pageLength);
 				stream.Position = 0;
 
-				using (var pages = new PageCollection(stream, pageLength))
+				using (var pages = new PageStorage(stream, pageLength))
 				{
 					pages.Pages.Count().Should().Be(numPages);
 					pages.Pages.Should().Equal(descriptors);

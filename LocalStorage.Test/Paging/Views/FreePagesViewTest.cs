@@ -14,7 +14,7 @@ namespace LocalStorage.Test.Paging.Views
 		public void TestCtor()
 		{
 			using (var stream = new MemoryStream())
-			using (var pages = new PageCollection(stream, 1024))
+			using (var pages = new PageStorage(stream, 1024))
 			using (var page = pages.Allocate(PageType.FreePageIndex))
 			{
 				var view = new FreePagesView(page);
@@ -27,7 +27,7 @@ namespace LocalStorage.Test.Paging.Views
 		public void TestPreviousPageIndex()
 		{
 			using (var stream = new MemoryStream())
-			using (var pages = new PageCollection(stream, 1024))
+			using (var pages = new PageStorage(stream, 1024))
 			using (var page = pages.Allocate(PageType.FreePageIndex))
 			{
 				var view = new FreePagesView(page);
@@ -44,7 +44,7 @@ namespace LocalStorage.Test.Paging.Views
 		public void TestNextPageIndex()
 		{
 			using (var stream = new MemoryStream())
-			using (var pages = new PageCollection(stream, 1024))
+			using (var pages = new PageStorage(stream, 1024))
 			using (var page = pages.Allocate(PageType.FreePageIndex))
 			{
 				var view = new FreePagesView(page);

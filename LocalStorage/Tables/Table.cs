@@ -12,7 +12,7 @@ namespace LocalStorage.Tables
 		private static readonly Type DataType;
 // ReSharper restore StaticFieldInGenericType
 
-		private readonly PageCollection _pages;
+		private readonly PageStorage _pages;
 		private readonly string _tableName;
 		private readonly List<IColumn> _columns;
 
@@ -21,7 +21,7 @@ namespace LocalStorage.Tables
 			DataType = typeof (T);
 		}
 
-		public Table(PageCollection pages, string tableName, List<IColumn> columns)
+		public Table(PageStorage pages, string tableName, List<IColumn> columns)
 		{
 			if (pages == null) throw new ArgumentNullException("pages");
 			if (tableName == null) throw new ArgumentNullException("tableName");

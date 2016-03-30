@@ -19,10 +19,11 @@ namespace LocalStorage.Test.Paging.Views
 		public void TestCtor1([Values(256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536)] int pageSize)
 		{
 			using (var stream = new MemoryStream())
-			using (var pages = new PageCollection(stream, pageSize))
+			using (var pages = new PageStorage(stream, pageSize))
 			using (var page = pages.Allocate(PageType))
 			{
-				var view = CreateView(page);
+				IPageView view = null;
+				new Action(() => view= CreateView(page)).ShouldNotThrow();
 				view.Should().NotBeNull();
 			}
 		}
@@ -32,7 +33,7 @@ namespace LocalStorage.Test.Paging.Views
 		public void TestCtor2()
 		{
 			using (var stream = new MemoryStream())
-			using (var pages = new PageCollection(stream, 1024))
+			using (var pages = new PageStorage(stream, 1024))
 			using (var page = pages.Allocate((PageType)255))
 			{
 				new Action(() => CreateView(page)).ShouldThrow<InvalidEnumArgumentException>();
@@ -44,7 +45,7 @@ namespace LocalStorage.Test.Paging.Views
 		public void TestCtor3()
 		{
 			using (var stream = new MemoryStream())
-			using (var pages = new PageCollection(stream, 1024))
+			using (var pages = new PageStorage(stream, 1024))
 			using (var page = pages.Allocate(PageType+1))
 			{
 				new Action(() => CreateView(page)).ShouldThrow<ArgumentException>();
