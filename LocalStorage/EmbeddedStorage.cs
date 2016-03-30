@@ -3,7 +3,10 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using LocalStorage.Paging;
+using LocalStorage.Paging.Views;
+using LocalStorage.Strings;
 using LocalStorage.Tables;
+using LocalStorage.Types;
 
 namespace LocalStorage
 {
@@ -13,10 +16,12 @@ namespace LocalStorage
 	{
 		private readonly string _fileName;
 		private readonly PageCollection _pages;
-		private readonly TableCollection _tables;
-		private readonly StorageDescriptor _descriptor;
+		private readonly TableStorage _tables;
+		private readonly StorageHeaderView _header;
 		private readonly bool _disposeStream;
 		private readonly Stream _stream;
+		private readonly StringStorage _strings;
+		private readonly TypeStorage _types;
 
 		private EmbeddedStorage(Stream stream, string fileName, bool create, bool disposeStream)
 		{
@@ -29,30 +34,31 @@ namespace LocalStorage
 
 			if (create)
 			{
-				using (var header = _pages.Allocate(PageType.StorageDescriptor))
+				using (var page = _pages.Allocate(PageType.StorageHeader))
 				{
-					_descriptor = new StorageDescriptor
+					_header = new StorageHeaderView(page)
 						{
-							StorageVersion = StorageDescriptor.CurrentStorageVersion,
+							StorageVersion = StorageHeaderView.CurrentStorageVersion,
 							CreationTime = DateTime.Now
 						};
-					_descriptor.WriteTo(header);
+					_header.Commit();
 				}
 			}
 			else
 			{
 				var descriptor = _pages.Pages.FirstOrDefault();
-				if (descriptor.Type != PageType.StorageDescriptor)
+				if (descriptor.Type != PageType.StorageHeader)
 					throw new InvalidDataException("The given stream is not a valid storage or has been corrupted");
 
-				using (var page = _pages.Get(descriptor))
+				using (var page = _pages.Load(descriptor))
 				{
-					_descriptor = new StorageDescriptor();
-					_descriptor.ReadFrom(page);
+					_header = new StorageHeaderView(page);
 				}
 			}
 
-			_tables = new TableCollection(_pages);
+			_strings = new StringStorage(_pages);
+			_types = new TypeStorage(_pages, _strings);
+			_tables = new TableStorage(_pages, _strings, _types);
 		}
 
 		public override string ToString()
@@ -65,9 +71,9 @@ namespace LocalStorage
 			get { return _fileName; }
 		}
 
-		public IStorageDescriptor Descriptor
+		public IStorageHeader Header
 		{
-			get { return _descriptor; }
+			get { return _header; }
 		}
 
 		public ITableCollection Tables

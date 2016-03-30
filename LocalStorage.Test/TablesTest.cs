@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Linq;
 using FluentAssertions;
+using LocalStorage.Tables;
+using LocalStorage.Test.Classes;
 using NUnit.Framework;
 
 namespace LocalStorage.Test
@@ -19,13 +21,12 @@ namespace LocalStorage.Test
 		}
 
 		[Test]
-		[Ignore("TODO: IMplement")]
 		public void TestAddTable1()
 		{
-			var table = _embeddedStorage.Tables.Add<string>("Foobar");
+			var table = _embeddedStorage.Tables.Add<IntStringType>("Foobar");
 			table.Should().NotBeNull();
 			table.Name.Should().Be("Foobar");
-			table.DataType.Should().Be<string>();
+			table.DataType.Should().Be<IntStringType>();
 
 			_embeddedStorage.Dispose();
 			_stream.Position = 0;
@@ -33,9 +34,9 @@ namespace LocalStorage.Test
 
 			_embeddedStorage.Tables.Count.Should().Be(1);
 			table = _embeddedStorage.Tables.First();
-			table.Should().BeOfType<ITable<string>>();
+			table.Should().BeOfType<Table<IntStringType>>();
 			table.Name.Should().Be("Foobar");
-			table.DataType.Should().Be<string>();
+			table.DataType.Should().Be<IntStringType>();
 		}
 	}
 }

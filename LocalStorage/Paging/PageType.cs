@@ -4,8 +4,10 @@
 	{
 		Invalid = 0,
 
-		StorageDescriptor = 1,
+		StorageHeader = 1,
 		FreePageIndex = 2,
-		TableDescriptor = 3
+		StringList = 3,
+		TypeList = 4,
+		TableDescriptor = 5
 	}
 }

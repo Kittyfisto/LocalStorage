@@ -40,11 +40,9 @@ namespace LocalStorage.Test.Paging
 						"Because the actual stream should've been resized to accomodate the page's data");
 					stream.Read(streamData, 0, dataLength);
 					streamData.Should().Equal(new byte[dataLength], "Because the page has not yet been persisted yet");
-				}
 
-				// Dispose() flushes the page, but it does so asynchronously and thus we need to wait
-				// for the queue to be finished
-				pages.Wait();
+					page.Commit();
+				}
 
 				stream.Position = PageDescriptor.HeaderSize;
 				stream.Read(streamData, 0, dataLength).Should().Be(dataLength);
@@ -72,13 +70,11 @@ namespace LocalStorage.Test.Paging
 
 					new Action(() => page.Write(data, 0, data.Length))
 						.ShouldNotThrow("Because writing data to a page may never fail");
+
+					page.Commit();
 				}
 
-				// Dispose() flushes the page, and does so asynchronously, but we don't need
-				// to wait in our test because Page.Read blocks until the page is actually refreshed
-				// with the actual data...
-
-				using (var page = pages.Get(descriptor))
+				using (var page = pages.Load(descriptor))
 				{
 					var actualData = new byte[dataLength];
 					page.Read(actualData, 0, actualData.Length).Should().Be(
@@ -92,7 +88,7 @@ namespace LocalStorage.Test.Paging
 		[Description("Verifies that creating a page collection on a previously used stream restores all page descriptors")]
 		public void TestOpen([Values(1, 32, 1024)] int numPages, [Values(1024, 2048)] int pageLength)
 		{
-			for (int x = 0; x < 1000; ++x)
+			for (int x = 0; x < 100; ++x)
 			{
 				var descriptors = new List<PageDescriptor>();
 				using (var stream = new MemoryStream())

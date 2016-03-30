@@ -2,7 +2,7 @@
 {
 	public interface IEmbdeddedStorage
 	{
-		IStorageDescriptor Descriptor { get; }
+		IStorageHeader Header { get; }
 
 		ITableCollection Tables { get; }
 

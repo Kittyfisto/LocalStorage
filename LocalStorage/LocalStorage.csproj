@@ -37,6 +37,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,7 +47,7 @@
   <ItemGroup>
     <Compile Include="Extensions\ReaderWriterExtensions.cs" />
     <Compile Include="IEmbdeddedStorage.cs" />
-    <Compile Include="IStorageDescriptor.cs" />
+    <Compile Include="IStorageHeader.cs" />
     <Compile Include="ITableCollection.cs" />
     <Compile Include="Paging\IInternalPageCollection.cs" />
     <Compile Include="ITable.cs" />
@@ -56,14 +57,22 @@
     <Compile Include="Paging\PageDescriptor.cs" />
     <Compile Include="Paging\PageCollection.cs" />
     <Compile Include="EmbeddedStorage.cs" />
+    <Compile Include="Paging\Views\AbstractLinkedListPageView.cs" />
+    <Compile Include="Paging\Views\AbstractPageView.cs" />
+    <Compile Include="Paging\Views\ColumnDescription.cs" />
+    <Compile Include="Paging\Views\ColumnDescriptionList.cs" />
     <Compile Include="Paging\Views\FreePagesView.cs" />
     <Compile Include="Paging\PageType.cs" />
+    <Compile Include="Paging\Views\StorageHeaderView.cs" />
+    <Compile Include="Paging\Views\StringListView.cs" />
+    <Compile Include="Paging\Views\TableDescriptionView.cs" />
+    <Compile Include="Paging\Views\TypeListPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StorageDescriptor.cs" />
     <Compile Include="StorageMode.cs" />
+    <Compile Include="Strings\StringStorage.cs" />
     <Compile Include="Tables\Table.cs" />
-    <Compile Include="Tables\TableCollection.cs" />
-    <Compile Include="Tables\TableHeader.cs" />
+    <Compile Include="Tables\TableStorage.cs" />
+    <Compile Include="Types\TypeStorage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

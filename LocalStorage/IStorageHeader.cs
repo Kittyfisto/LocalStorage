@@ -2,7 +2,7 @@
 
 namespace LocalStorage
 {
-	public interface IStorageDescriptor
+	public interface IStorageHeader
 	{
 		int StorageVersion { get; }
 		DateTime CreationTime { get; }

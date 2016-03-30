@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using FluentAssertions;
+using LocalStorage.Paging.Views;
 using NUnit.Framework;
 
 namespace LocalStorage.Test
@@ -19,10 +20,10 @@ namespace LocalStorage.Test
 
 				storage.Should().NotBeNull();
 				storage.IsReadOnly.Should().BeFalse();
-				storage.Descriptor.Should().NotBeNull();
-				storage.Descriptor.StorageVersion.Should().Be(StorageDescriptor.CurrentStorageVersion);
-				storage.Descriptor.CreationTime.Should().BeOnOrAfter(before);
-				storage.Descriptor.CreationTime.Should().BeOnOrBefore(after);
+				storage.Header.Should().NotBeNull();
+				storage.Header.StorageVersion.Should().Be(StorageHeaderView.CurrentStorageVersion);
+				storage.Header.CreationTime.Should().BeOnOrAfter(before);
+				storage.Header.CreationTime.Should().BeOnOrBefore(after);
 			}
 		}
 
@@ -30,19 +31,19 @@ namespace LocalStorage.Test
 		[Description("Verifies that opening a storage on a previously created file works")]
 		public void TestFromFile2()
 		{
-			IStorageDescriptor descriptor;
+			IStorageHeader header;
 			var fname = Path.GetTempFileName();
 			using (var storage = EmbeddedStorage.FromFile(fname, StorageMode.Create))
 			{
-				descriptor = storage.Descriptor;
+				header = storage.Header;
 			}
 
 			using (var storage = EmbeddedStorage.FromFile(fname, StorageMode.Open))
 			{
 				storage.Should().NotBeNull();
-				storage.Descriptor.Should().NotBeNull();
-				storage.Descriptor.StorageVersion.Should().Be(descriptor.StorageVersion);
-				storage.Descriptor.CreationTime.Should().Be(descriptor.CreationTime);
+				storage.Header.Should().NotBeNull();
+				storage.Header.StorageVersion.Should().Be(header.StorageVersion);
+				storage.Header.CreationTime.Should().Be(header.CreationTime);
 			}
 		}
 	}

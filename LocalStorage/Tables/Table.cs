@@ -5,35 +5,25 @@ using LocalStorage.Paging;
 
 namespace LocalStorage.Tables
 {
-	internal abstract class Table
-	{
-		protected readonly TableHeader Header;
-
-		protected Table(TableHeader header)
-		{
-			Header = header;
-		}
-	}
-
 	internal sealed class Table<T>
-		: Table
-		  , ITable<T>
+		: ITable<T>
 	{
 // ReSharper disable StaticFieldInGenericType
 		private static readonly Type DataType;
 // ReSharper restore StaticFieldInGenericType
 
 		private readonly PageCollection _pages;
+		private readonly string _tableName;
 
 		static Table()
 		{
 			DataType = typeof (T);
 		}
 
-		internal Table(PageCollection pages, TableHeader header)
-			: base(header)
+		public Table(PageCollection pages, string tableName)
 		{
 			_pages = pages;
+			_tableName = tableName;
 		}
 
 		public IEnumerator<T> GetEnumerator()
@@ -53,7 +43,7 @@ namespace LocalStorage.Tables
 
 		public string Name
 		{
-			get { return Header.Name; }
+			get { return _tableName; }
 		}
 
 		public void Add(T item)

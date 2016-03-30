@@ -4,10 +4,9 @@ using System.Threading.Tasks;
 
 namespace LocalStorage.Paging
 {
-	internal class Page
+	internal sealed class Page
 		: Stream
 	{
-		protected readonly PageCollection Pages;
 		private readonly bool _canWrite;
 		private readonly byte[] _data;
 		private readonly PageDescriptor _descriptor;
@@ -15,7 +14,6 @@ namespace LocalStorage.Paging
 		private readonly PageCollection _pages;
 
 		private bool _isDirty;
-		private bool _isDisposed;
 		private int _position;
 
 		/// <summary>
@@ -25,14 +23,14 @@ namespace LocalStorage.Paging
 		/// <param name="zeroOut">When true, then the page's content must be zeroed out before any read operation may continue</param>
 		private Page(PageCollection pages, PageDescriptor descriptor, bool zeroOut)
 		{
-			Pages = pages;
+			_pages = pages;
 			_descriptor = descriptor;
 			_data = new byte[pages.PageSize - PageDescriptor.HeaderSize];
 			_pages = pages;
 
 			_initTask = zeroOut
-				            ? Pages.Write(Descriptor, _data)
-				            : Pages.Read(descriptor, _data);
+							? _pages.Write(Descriptor, _data)
+							: _pages.Read(descriptor, _data);
 
 			if (pages.CanWrite)
 			{
@@ -101,32 +99,9 @@ namespace LocalStorage.Paging
 			return new Page(pages, descriptor, false);
 		}
 
-		protected override void Dispose(bool disposing)
-		{
-			if (!_isDisposed)
-			{
-				base.Dispose(disposing);
-
-				if (_isDirty)
-				{
-					var task = _pages.Write(_descriptor, _data);
-					task.Wait();
-				}
-
-				_pages.Remove(this);
-				_isDisposed = true;
-			}
-		}
-
 		public override void Flush()
 		{
-			if (_isDirty)
-			{
-				Task task = Pages.Write(_descriptor, _data);
-				task.Wait();
-
-				_isDirty = false;
-			}
+			
 		}
 
 		public override long Seek(long offset, SeekOrigin origin)
@@ -171,6 +146,17 @@ namespace LocalStorage.Paging
 			Array.Copy(buffer, offset, _data, _position, count);
 			_position += count;
 			_isDirty = true;
+		}
+
+		public void Commit()
+		{
+			if (_isDirty)
+			{
+				Task task = _pages.Write(_descriptor, _data);
+				task.Wait();
+
+				_isDirty = false;
+			}
 		}
 	}
 }

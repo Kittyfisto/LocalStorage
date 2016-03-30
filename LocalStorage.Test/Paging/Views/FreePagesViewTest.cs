@@ -1,12 +1,10 @@
-﻿using System;
-using System.ComponentModel;
-using System.IO;
+﻿using System.IO;
 using FluentAssertions;
 using LocalStorage.Paging;
 using LocalStorage.Paging.Views;
 using NUnit.Framework;
 
-namespace LocalStorage.Test.Paging.Pages
+namespace LocalStorage.Test.Paging.Views
 {
 	[TestFixture]
 	public sealed class FreePagesViewTest
@@ -18,10 +16,10 @@ namespace LocalStorage.Test.Paging.Pages
 			using (var stream = new MemoryStream())
 			using (var pages = new PageCollection(stream, 1024))
 			using (var page = pages.Allocate(PageType.FreePageIndex))
-			using (var view = new FreePagesView(page))
 			{
-				view.PreviousPageIndex.Should().Be(0);
-				view.NextPageIndex.Should().Be(0);
+				var view = new FreePagesView(page);
+				view.PreviousPageId.Should().Be(0);
+				view.NextPageId.Should().Be(0);
 			}
 		}
 
@@ -31,13 +29,13 @@ namespace LocalStorage.Test.Paging.Pages
 			using (var stream = new MemoryStream())
 			using (var pages = new PageCollection(stream, 1024))
 			using (var page = pages.Allocate(PageType.FreePageIndex))
-			using (var view = new FreePagesView(page))
 			{
-				view.PreviousPageIndex.Should().Be(0);
+				var view = new FreePagesView(page);
+				view.PreviousPageId.Should().Be(0);
 				for (int i = 1; i < 10000; ++i)
 				{
-					view.PreviousPageIndex = i;
-					view.PreviousPageIndex.Should().Be(i);
+					view.PreviousPageId = i;
+					view.PreviousPageId.Should().Be(i);
 				}
 			}
 		}
@@ -48,13 +46,13 @@ namespace LocalStorage.Test.Paging.Pages
 			using (var stream = new MemoryStream())
 			using (var pages = new PageCollection(stream, 1024))
 			using (var page = pages.Allocate(PageType.FreePageIndex))
-			using (var view = new FreePagesView(page))
 			{
-				view.NextPageIndex.Should().Be(0);
+				var view = new FreePagesView(page);
+				view.NextPageId.Should().Be(0);
 				for (int i = 1; i < 10000; ++i)
 				{
-					view.NextPageIndex = i;
-					view.NextPageIndex.Should().Be(i);
+					view.NextPageId = i;
+					view.NextPageId.Should().Be(i);
 				}
 			}
 		}
