@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Metrolib</id>
+    <version>$version$</version>
+    <authors>Kittyfisto</authors>
+    <owners>Kittyfisto</owners>
+    <licenseUrl>https://github.com/Kittyfisto/LocalStorage/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/Kittyfisto/LocalStorage/</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>.NET embedded storage library</description>
+    <releaseNotes>Alpha release</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>.NET embedded storage</tags>
+    <dependencies>
+      <!--<dependency id="SampleDependency" version="1.0" />-->
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\bin\Release\LocalStorage.XML" target="lib\net45\" />
+    <file src="..\bin\Release\LocalStorage.pdb" target="lib\net45\" />
+    <file src="..\bin\Release\LocalStorage.dll" target="lib\net45\" />
+  </files>
+</package>
